@@ -1,0 +1,175 @@
+*{
+  padding:0;
+  margin:0;
+  color:white;
+  user-select: none;
+  font-weight: bold;
+}
+body{
+  padding:20px;
+  background:url(https://img.freepik.com/free-vector/_53562-6181.jpg?size=626&ext=jpg);
+  background-position: center;
+  background-size: cover;
+}
+
+#timer{
+  background:#00a7ea;
+  font-size:20px;
+}
+
+div{
+  text-align: center;
+}
+
+img{
+  width:300px;
+  height:300px;
+  object-fit: fill;
+}
+
+#judgement_img{
+ cursor: pointer;
+}
+
+.players{
+  display:flex;
+  justify-content: space-evenly;
+}
+
+.hp_bg{
+  margin:30px 0;
+  background: #00a7ea;
+  border-radius: 5px;
+}
+
+#judgement{
+  position:relative;
+  top:85px;
+}
+
+#jo_result,#jo_score,#riki_result,#riki_score{
+  font-size:24px;
+  text-shadow: 0px 5px 1px #00a7ea;
+}
+
+.command{
+  margin:100px 0;
+}
+
+ul{
+  display: flex;
+  user-select: none;
+  justify-content: space-evenly;
+}
+
+.gu_btn{
+  list-style: none;
+  background: yellow;
+  box-shadow: 0px 10px 0 rgb(138, 138, 0);
+  padding:20px;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.gu_btn:hover{
+  background:rgb(206, 206, 0);
+  cursor: pointer;
+}
+
+.gu_btn:active{
+  box-shadow: 0 5px 0 rgb(153, 153, 1);
+  position: relative;
+  top:5px;
+}
+
+.cho_btn{
+  list-style: none;
+  background: lime;
+  box-shadow: 0px 10px 0 rgb(2, 143, 2);
+  padding:20px;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.cho_btn:hover{
+  background:rgb(3, 204, 3);
+  cursor: pointer;
+}
+
+.cho_btn:active{
+  box-shadow: 0 5px 0 rgb(2, 143, 2);
+  position: relative;
+  top:5px;
+}
+
+.par_btn{
+  list-style: none;
+  background: blue;
+  box-shadow: 0px 10px 0 rgb(1, 1, 160);
+  padding:20px;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.par_btn:hover{
+  background:rgb(1, 70, 218);
+  cursor: pointer;
+}
+
+.par_btn:active{
+  box-shadow: 0 5px 0 rgb(1, 1, 160);
+  position: relative;
+  top:5px;
+}
+
+
+
+.tange, .reset, .surrender, .stage_change{
+  list-style: none;
+  background: crimson;
+  box-shadow: 0px 10px 0 rgb(155, 2, 32);
+  padding:20px;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.tange:hover, .reset:hover, .surrender:hover, .stage_change:hover{
+  background:rgb(253, 0, 51);
+  cursor: pointer;
+}
+
+.tange:active, .reset:active, .surrender:active, .stage_change:active{
+  box-shadow: 0 5px 0 rgb(155, 2, 32);
+  position: relative;
+  top:5px;
+}
+
+.disabled{
+  background:gray;
+  box-shadow:0 10px 0 rgb(92, 91, 91);
+  
+}
+.disabled:active{
+  box-shadow:0 5px 0 rgb(92, 91, 91);
+}
+
+.disabled:hover{
+  background:gray;
+  cursor: default;
+}
+
+.button_below{
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.surrender{
+  position: relative;
+  right:25px;
+}
+
+.tange{
+  position: relative;
+  right:25px;
+}
+

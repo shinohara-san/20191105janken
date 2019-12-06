@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="shortcut icon" href="https://moon.publicdomainq.net/201812/28o/publicdomainq-0029864fcbkch.png" type="image/vnd.microsoft.icon" />
+  <link rel="icon" href="https://moon.publicdomainq.net/201812/28o/publicdomainq-0029864fcbkch.png" type="image/vnd.microsoft.icon" />
+  <title>ジョーじゃんけん</title>
+</head>
+
+<body>
+  <main>
+  
+    <div id="timer">Click the gong to start</div>
+    <div class="players">
+      <div class="jo">
+        <p class="hp_bg" id="j_hp"></p>
+        <img src="img/jo.jpg" id="jo_face" alt="ジョー">
+        <p id="jo_result">あなた</p>
+        <p id="jo_score"></p>
+      </div>
+      <div>
+        
+        <p id="judgement">
+          <a>
+            <img id="judgement_img" src="img/gong.png" alt="ゴング">
+          </a>
+        </p>
+        <audio id="gong" preload="auto">
+          <source src="audio/gong-played1.mp3" type="audio/mp3">
+        </audio>
+      </div>
+      <div class="toru">
+        <p class="hp_bg" id="t_hp"></p>
+        <img src="img/rikiiishi_top.jpg" id="riki_face"  alt="力石"">
+        <p id="riki_result">相手</p>
+        <p id="riki_score"></p>
+      </div>
+    </div>
+      
+      <div class="command">
+        <ul>
+          <li id="gu_btn" class="gu_btn disabled">
+            <a>ジャブ</a>
+          </li>
+          <audio id="jab" preload="auto">
+            <source src="audio/punch-middle2.mp3" type="audio/mp3">
+          </audio>
+          <li id="cho_btn" class="cho_btn disabled">
+            <a>ストレート</a>
+          </li>
+          <audio id="straight" preload="auto">
+            <source src="audio/punch-high2.mp3" type="audio/mp3">
+          </audio>
+          <li id="par_btn" class="par_btn disabled">
+            <a>アッパー</a>
+          </li>
+          <audio id="upper" preload="auto">
+            <source src="audio/punch-high1.mp3" autoplay type="audio/mp3">
+          </audio>
+        </ul>
+      </div>
+      <div class="button_below">
+        <div id="tange" class="tange disabled">丹下のおっさん</div>
+        <div id="surrender" class="surrender disabled">タオルを投げる</div>
+        <!-- <div id="reset" class="reset">リセット</div> -->
+
+        <div id="stage_change1" class="stage_change">リング</div>
+        <div id="stage_change2" class="stage_change">夕焼け</div>
+        <div id="stage_change3" class="stage_change">ドヤ街</div>
+        <!-- <div id="save" class="stage_change">セーブ</div> -->
+        <div id="delete" class="stage_change">スコアリセット</div>
+      
+      </div>
+      
+      <audio id="tange_voice"" preload="auto">
+        <source src="audio/tange_voice.m4a" type="audio/mp3">
+      </audio>
+      <audio id="stadium"" preload="auto" loop>
+        <source src="audio/stadium-buzz1.mp3" type="audio/mp3">
+      </audio>
+      <audio id="end_gong" preload="auto">
+        <source src="audio/gong-played2.mp3" type="audio/mp3">
+      </audio>
+  
+  </main>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="js/anime.min.js"></script>
+  <script>
+
+    $(function () {
+      'use strict';
+
+      const li = document.getElementsByTagName('li');
+      const judgement = document.getElementById('judgement');
+      const timer = document.getElementById('timer');
+      let j_hp = document.getElementById('j_hp');
+      let t_hp = document.getElementById('t_hp');
+      const jo_face = document.getElementById('jo_face');
+      const riki_face = document.getElementById('riki_face');  
+      const jo_result = document.getElementById('jo_result');
+      const riki_result = document.getElementById('riki_result');
+
+      let isPlaying = false;
+      let startTime;
+      let timeoutId;
+
+      let jo_score = document.getElementById('jo_score');
+      let riki_score = document.getElementById('riki_score');
+      let jw = 0;
+      let jl = 0;
+      let jd = 0;
+      let rw = 0;
+      let rl = 0;
+      let rd = 0;
+
+      const end_gong = document.getElementById('end_gong');
+      const tange_voice = document.getElementById('tange_voice');
+      const stadium = document.getElementById('stadium');
+
+      // -------------------------
+
+      // 初期画面
+
+      // -------------------------
+      function init(){
+        timer.textContent = 'Click the gong to start';
+        j_hp.textContent = '打つべし!打つべし!';
+        t_hp.textContent = 'ぶっ殺すって...このおれをかい？';
+
+        jo_face.src = 'img/jo.jpg';
+        riki_face.src = 'img/rikiiishi_top.jpg';
+        judgement_img.src = "img/gong.png";
+
+        jo_result.textContent = "あなた";
+        riki_result.textContent = "相手";
+
+         if (localStorage.getItem('scores')) {
+          const jasonData = localStorage.getItem('scores');
+          const initData = JSON.parse(jasonData);
+          jw = initData.jw;
+          jl = initData.jl;
+          jd = initData.jd;
+          rw = initData.rw;
+          rl = initData.rl;
+          rd = initData.rd;
+          jo_score.textContent = `${jw}勝${jl}敗${jd}分`;
+          riki_score.textContent = `${rw}勝${rl}敗${rd}分`;
+        } 
+        // else {
+          jo_score.textContent = `${jw}勝${jl}敗${jd}分`;
+          riki_score.textContent = `${rw}勝${rl}敗${rd}分`;
+          // jo_score.textContent = '0勝0敗0分';
+          // riki_score.textContent = '0勝0敗0分';
+        }
+       
+        
+    // };
+
+      init();
+      // -------------------------
+
+      // 引き分け・ゲーム終了処理
+
+      // -------------------------      
+        function endGame(){
+          end_gong.play();
+          stadium.pause();
+          clearTimeout(timeoutId);
+          $('li').addClass('disabled');
+          $('#tange').addClass('disabled');
+          $('#surrender').addClass('disabled');
+          $('#reset').removeClass('disabled');
+          $('#stage_change1').removeClass('disabled');
+          $('#stage_change2').removeClass('disabled');
+          $('#stage_change3').removeClass('disabled');
+          $('#save').removeClass('disabled');
+          $('#delete').removeClass('disabled');
+          timer.textContent = "Click below to replay";
+          isPlaying = false;
+          // const saveData = {
+          //     jw: jw,
+          //     jl: jl,
+          //     jd: jd,
+          //     rw: rw,
+          //     rl: rl,
+          //     rd: rd,
+          //   };
+          //   const jsonData = JSON.stringify(saveData);
+          //   localStorage.setItem('scores', jsonData);
+        }
+
+        function draw() {
+          jo_result.textContent = "Draw";
+          riki_result.textContent = "Draw";
+
+          jd++;
+          rd++;
+          jo_score.textContent = `${jw}勝${jl}敗${jd}分`;
+          riki_score.textContent = `${rw}勝${rl}敗${rd}分`;
+
+          jo_face.src = 'img/jo.jpg';
+          riki_face.src = 'img/rikiiishi_top.jpg';
+          judgement_img.src = "img/timesup.png";
+      }
+
+      // -------------------------
+
+      // タイマー
+
+      // -------------------------
+       function updateTimer() {
+        const timeLimit = 180 * 1000;
+        
+        const t = new Date(startTime + timeLimit - Date.now());
+        const m = String(t.getMinutes()).padStart(2, '0');
+        const s = String(t.getSeconds()).padStart(2, '0');
+        const ms = String(t.getMilliseconds()).padStart(3, '0');
+        timer.textContent = `${m}:${s}.${ms}`;
+
+        timeoutId = setTimeout(() => {
+          updateTimer();
+        }, 10);
+
+        // -----------------------------
+
+        // 時間切れ・引き分け
+
+        // -----------------------------
+       
+
+        if (t < 0) {
+          endGame();
+          draw();
+          j_hp.textContent = "さすがに力石だ...。";
+          t_hp.textContent = "みごとだぜ、ジョー...。";
+        }
+      }
+
+
+      // // --------------------------------
+
+      // // リセットボタン
+
+      // // --------------------------------
+
+      // $('#reset').on('click', function(){
+      //   if(isPlaying == true){
+      //     return;
+      //   };
+      //   let result = confirm('リセットしますか？');
+
+      //   if (result) {   
+      //   jw = 0;
+      //   jl = 0;
+      //   jd = 0;
+      //   rw = 0;
+      //   rl = 0;
+      //   rd = 0;
+      //   init();
+
+      //   };
+      // });
+
+
+      // --------------------------------
+
+      // 始まりゴング 
+
+      // -------------------------------
+
+      $('#judgement').on('click', function () {
+        if(isPlaying == true){
+          return;
+        };
+        init();
+        isPlaying = true;
+        j_hp.textContent = 300;
+        t_hp.textContent = 300;
+        gong.play();
+        stadium.play();
+
+      
+        
+        $('li').removeClass('disabled');
+        $('#surrender').removeClass('disabled');
+        $('#reset').addClass('disabled');
+        $('#stage_change1').addClass('disabled');
+        $('#stage_change2').addClass('disabled');
+        $('#stage_change3').addClass('disabled');
+        $('#save').addClass('disabled');
+        $('#delete').addClass('disabled');
+        judgement_img.src = "img/fight.jpg";
+        
+        startTime = Date.now();
+        updateTimer();
+      })
+
+      // -----------------------------------
+
+      // パンチ ・ダメージ
+
+      // -----------------------------------
+
+      function crossCounter(){
+        j_hp.textContent -= 20;
+        t_hp.textContent -= 20;
+        judgement_img.src =  "img/crosscounter.jpg";
+        anime({
+          targets: jo_face,
+          translateX: [
+            35, 0,
+          ],
+
+        })
+        anime({
+          targets: riki_face,
+          translateX: [
+            -35, 0,
+          ],
+        })
+      }
+
+      function joPunch(){
+        t_hp.textContent -= 10;
+        judgement_img.src = "img/jopunch.jpg";
+        anime({
+          targets: jo_face,
+          translateX: [
+            15, 0,
+          ],
+        })
+      }
+
+      function rikiPunch(){
+        j_hp.textContent -= 10;
+        judgement_img.src = "img/rikipunch.jpg";
+        anime({
+          targets: riki_face,
+          translateX: [
+            -15, 0,
+          ],
+        })
+      }
+
+      function loser(){
+        j_hp.textContent = "0";
+        t_hp.textContent = "おわった...。なにもかも......。";
+        jo_result.textContent = "Loser";
+        riki_result.textContent = "Winner";
+      
+        jl++;
+        rw++;
+        jo_score.textContent = `${jw}勝${jl}敗${jd}分`;
+        riki_score.textContent = `${rw}勝${rl}敗${rd}分`;
+
+        jo_face.src = 'img/rikiwin.jpeg';
+        riki_face.src = 'img/rikiishi.png';
+      }
+
+
+      $('li').on('click', function () {
+         if (!isPlaying) {
+          return;
+        };
+        
+        
+        const jab = document.getElementById('jab');
+        const straight = document.getElementById('straight');
+        const upper = document.getElementById('upper');
+
+        if(isPlaying == false){
+          return;
+        }
+
+        const random = Math.floor(Math.random() * 3);
+
+        if (random == 0) {
+          if (this.id == "par_btn") {
+            upper.play();
+            joPunch();
+          } else if (this.id == 'cho_btn') {
+            straight.play();
+            rikiPunch();
+          } else {
+            jab.play();
+            crossCounter();
+          }
+
+        } else if (random == 1) {
+          if (this.id == 'par_btn') {
+            upper.play();
+            rikiPunch();
+          } else if (this.id == "cho_btn") {
+            straight.play();
+            crossCounter();
+          } else {
+            jab.play();
+            joPunch();
+          }
+
+        } else {
+          if (this.id == 'par_btn') {
+            upper.play();
+            crossCounter();
+          } else if (this.id == 'cho_btn') {
+            straight.play();
+            joPunch();
+          } else {
+            jab.play();
+            rikiPunch();
+          }
+        }
+        // -----------------------------------------
+
+        // HP20以下の時の顔
+
+        // -----------------------------------------        
+        if (j_hp.textContent <= 20) {
+          jo_face.src = 'img/jo_pinchi.jpeg';
+          $('#tange').removeClass('disabled');
+        }
+
+           // -------------------------------------
+        // // 引き分け
+        // -------------------------------------
+   
+
+        if (j_hp.textContent <= 0 && t_hp.textContent <= 0) {
+          endGame();
+          draw();
+          j_hp.textContent = "...";
+          t_hp.textContent = "...";       
+        }
+        // -----------------------------------------
+
+        // 負け
+
+        // -----------------------------------------
+
+        if(j_hp.textContent <= 0){
+          endGame();
+          loser();
+
+          judgement_img.src = "img/gong.png";
+        }
+
+        // ---------------------------------
+        // 勝ち
+        // ---------------------------------
+
+        if(t_hp.textContent <= 0){
+          endGame();
+          j_hp.textContent = "燃え尽きたぜ...。真っ白にな...。";
+          t_hp.textContent = "0";
+          jo_result.textContent = "Winner";
+          riki_result.textContent = "Loser";
+          judgement_img.src = "img/gong.png";
+          jo_face.src = 'img/jowin.jpeg';
+        
+          riki_face.src = 'img/rikilose.jpeg';
+          
+          jw++;
+          rl++;
+          jo_score.textContent = `${jw}勝${jl}敗${jd}分`;
+          riki_score.textContent = `${rw}勝${rl}敗${rd}分`;
+
+        }
+     
+        
+      });
+
+      // ---------------------------------------
+
+      // 丹下のおっさん
+
+      // ---------------------------------------
+
+
+      $('#tange').on('click', function () {
+        if(!isPlaying){
+          return;
+        };
+
+        let i = 0;
+
+        if(j_hp.textContent <= 20){
+          tange_voice.play();
+          judgement_img.src = "img/tange.jpeg";
+      
+          $('#j_hp').text(j_hp.textContent * 1 + 10);
+          i++;
+
+          if(i == 1){
+            $('#tange').addClass('disabled');
+            return;
+          };
+        };
+
+        
+      });
+        
+
+      // ---------------------------------------
+
+      // タオルを投げる
+
+      // ---------------------------------------
+    
+        
+      $('#surrender').on('click', function () {
+        if(!isPlaying){
+          return;
+        };
+
+        let giveup = confirm('タオルを投げますか？');
+        if (giveup) {
+        endGame();
+        loser();
+        judgement_img.src = "img/surrender.png";
+        }}
+        
+      );
+
+      // -------------------------
+
+      // 背景画像変更ボタン 
+
+      // -------------------------  
+      $('#stage_change1').on('click', function(){
+        if(isPlaying == true){
+          return;
+        }
+        document.body.style.backgroundImage = 'url(img/ring.jpg)';
+      });
+      $('#stage_change2').on('click', function(){
+         if (isPlaying == true) {
+          return;
+        }
+        document.body.style.backgroundImage = 'url(img/sunset.jpg)';
+      });
+      $('#stage_change3').on('click', function(){
+         if (isPlaying == true) {
+          return;
+        }
+        document.body.style.backgroundImage = 'url(img/doyatown.jpg)';
+      });
+       
+
+      
+      // -------------------------
+
+      // ローカルストレージ練習 
+
+      // -------------------------  
+        // 保存
+        $('body').on('mousemove',
+        function(){
+          
+        
+             const saveData = {
+              jw: jw,
+              jl: jl,
+              jd: jd,
+              rw: rw,
+              rl: rl,
+              rd: rd,
+            };
+            const jsonData = JSON.stringify(saveData);
+            localStorage.setItem('scores', jsonData);
+          
+          
+        });
+        // 消去
+        $('#delete').on('click',function(){
+          if(isPlaying){
+            return;
+          };
+
+          let resetOr = confirm('リセットしますか？');
+          if (resetOr) {
+            localStorage.removeItem('scores');
+            jw = 0;
+            jl = 0;
+            jd = 0;
+            rw = 0;
+            rl = 0;
+            rd = 0;
+            jo_score.textContent = `${jw}勝${jl}敗${jd}分`;
+            riki_score.textContent = `${rw}勝${rl}敗${rd}分`;
+          }
+        });
+
+    });
+
+
+
+   
+  </script>
+  
+
+</body>
+
+</html>
